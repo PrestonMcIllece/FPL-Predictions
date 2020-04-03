@@ -23,10 +23,17 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'yg!gh21i!5$nm8bttt288q9)2@k5mdm4&0nubbq@2mq$io5563'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['www.fplpredictions.com']
+ALLOWED_HOSTS = [
+    '.fplpredictions.com',
+    '127.0.0.1',
+    'localhost'
+    ]
 
+STATICFILES_DIRS = [
+    "/Users/prestonmcillece/Documents/capstone/project/FPL-Predictions/home/static"
+]
 
 # Application definition
 

@@ -1,13 +1,18 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
     <head>
         <title>Input Team</title>
+        <link rel="stylesheet" type="text/css" href="{% static 'fpl-predictions/index.css' %}">
+        <link href="https://fonts.googleapis.com/css?family=Montserrat:200&display=swap" rel="stylesheet">
     </head>
     <body>
-        <form action="/input-team/" method="post">
-            {% csrf_token %}
-            {{ form }}
-            <input type="submit" value="Submit">
-        </form>
+        <div class="container">
+            <form action="/input-team/" method="post">
+                {% csrf_token %}
+                {{ form }}
+                <input type="submit" value="Submit" class="button">
+            </form>
+        </div>
     </body>
 </html>
