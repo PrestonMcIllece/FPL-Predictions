@@ -6,6 +6,7 @@ from .connect_to_api import connect
 from fpl import FPL
 import asyncio
 import aiohttp
+import unicodedata
 
 import requests
 import json
@@ -17,9 +18,14 @@ team = []
 comparison_list = []
 APIS = ["https://fantasy.premierleague.com/api/bootstrap-static/"]
 
+def all_players(request):
+    players = list_players()
+    players.sort()
+    return render(request, 'home/all-players.html', {'players': players})
 
 def build_team(request):
-    return HttpResponse(calculate_best_players())
+    bestPlayers = calculate_best_players()
+    return render(request, 'home/best-team.html', {'bestPlayers': bestPlayers})
 
 def compare_players(request):
     tempList = []
@@ -36,7 +42,8 @@ def compare_players(request):
     return render(request, 'home/compare-two-players.html', {'form': form})
 
 def compare_players_suggestions(request):
-    return HttpResponse(calculate_comparisons(comparison_list))
+    comparison = calculate_comparisons(comparison_list)
+    return render(request, 'home/compare-two-results.html', {'comparison': comparison})
 
 def get_name(request):
     tempTeam = []
@@ -70,11 +77,9 @@ def home_page(request):
     return render(request, 'home/index.html')
 
 def suggest_players(request):
-    return HttpResponse(parse_players(team))
+    suggestions = parse_players(team)
+    return render(request, 'home/team-results.html', {'suggestions': suggestions})
 
-def values(request):
-    values = str(list_variables())
-    return HttpResponse("The available values are : " + values)
 
 
 
@@ -102,7 +107,7 @@ def calculate_comparisons(inputtedTeam):
     secondPlayer = False
     for inputtedPlayer in inputtedTeam:
         for person in json_object:
-            if person['first_name'] == inputtedPlayer[0] and person['second_name'] == inputtedPlayer[1]:
+            if format_name(person['first_name']) == format_name(inputtedPlayer[0]) and format_name(person['second_name']) == format_name(inputtedPlayer[1]):
                 playersList.append(person)
                 if secondPlayer:
                     playerIdTuple = (firstPlayerId, person['id'])
@@ -114,14 +119,11 @@ def calculate_comparisons(inputtedTeam):
     adj_p1_pred_score, adj_p2_pred_score = player1_pred_score / 38, player2_pred_score / 38
 
     playerFormTuple = asyncio.run(playerExample(playerIdTuple))
-    print(player1_pred_score, adj_p1_pred_score, "|||", player2_pred_score, adj_p2_pred_score)
 
     if playerFormTuple[0] > 3.0:
         adj_p1_pred_score = adj_p1_pred_score * 2
     elif playerFormTuple[0] == 0.0:
         adj_p1_pred_score = adj_p1_pred_score * 0.5
-
-    print(player1_pred_score, adj_p1_pred_score, "|||", player2_pred_score, adj_p2_pred_score)
 
     if abs(adj_p1_pred_score - adj_p2_pred_score) < 1.5:
         confidence_level = 'only slightly confident'
@@ -131,23 +133,32 @@ def calculate_comparisons(inputtedTeam):
         confidence_level = 'extremely confident'
 
     comparison_list, inputtedTeam = [], []
-    return "We are " + confidence_level + ' that ' + predicted_scores[max(player1_pred_score, player2_pred_score)] +  " will have a better week than " + predicted_scores[min(player1_pred_score, player2_pred_score)] + " this week."
+    return "We are " + confidence_level + ' that ' + predicted_scores[max(player1_pred_score, player2_pred_score)] +  " will outpeform " + predicted_scores[min(player1_pred_score, player2_pred_score)] + " this week."
 
-def list_variables():
+def format_name(text):
+    try:
+        text = unicode(text, 'utf-8')
+    except NameError: # unicode is a default on python 3 
+        pass
+
+    text = str(unicodedata.normalize('NFD', text).encode('ascii', 'ignore').decode("utf-8"))
+    finalText = text.lower()
+    return finalText
+
+def list_players():
     json_object = connect(APIS[0])
-    values = []
-    for value in json_object[0]:
-        values.append(value)
-    print(len(values))
-    return values
+    players = []
+    for player in json_object:
+        players.append(player['first_name'] + " " + player['second_name'])
+    print(players)
+    return players
 
 def parse_players(inputtedTeam):
-    print(inputtedTeam)
     json_object = connect(APIS[0])
     playersList = []
     for inputtedPlayer in inputtedTeam:
         for person in json_object:
-            if person['first_name'] == inputtedPlayer[0] and person['second_name'] == inputtedPlayer[1]:
+            if format_name(person['first_name']) == format_name(inputtedPlayer[0]) and format_name(person['second_name']) == format_name(inputtedPlayer[1]):
                 playersList.append(person)
     player_score_predictions = run_model(playersList)
     keys = list(player_score_predictions.keys())
@@ -160,9 +171,8 @@ def parse_players(inputtedTeam):
     worst_player_name = player_score_predictions[worst_player_score]
     second_worst_player_name = player_score_predictions[second_worst_player_score]
     third_worst_player_name = player_score_predictions[third_worst_player_score]
-    print(player_score_predictions)
 
-    return "Your worst predicted players are " + worst_player_name + ", " + second_worst_player_name + ", and " + third_worst_player_name + ", in that order. You should consider benching these players or finding replacements on the transfer market."
+    return "Your worst predicted players in order are " + worst_player_name + ", " + second_worst_player_name + ", and " + third_worst_player_name + ". You should consider benching these players or finding replacements on the transfer market."
 
 async def playerExample(inputtedPlayerTuple):
     session = aiohttp.ClientSession()

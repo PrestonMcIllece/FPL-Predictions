@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.safestring import mark_safe
 
 class CompareTwoForm(forms.Form):
     Player1 = forms.CharField(label='Player 1', max_length=100)
@@ -19,4 +20,4 @@ class TeamForm(forms.Form):
     Midfielder5 = forms.CharField(label='Midfielder 5', max_length=100)
     Forward1 = forms.CharField(label='Forward 1', max_length=100)
     Forward2 = forms.CharField(label='Forward 2', max_length=100)
-    Forward3 = forms.CharField(label='Forward 3', max_length=100)
+    Forward3 = forms.CharField(label=mark_safe('<br /> Forward 3'), max_length=100)

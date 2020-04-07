@@ -8,10 +8,14 @@
     </head>
     <body>
         <div class="container">
+            <h2>Enter your FPL team!</h2>
             <form action="/input-team/" method="post">
                 {% csrf_token %}
                 {{ form }}
-                <input type="submit" value="Submit" class="button">
+                <br>
+                <div class="buttonDiv">
+                    <input type="submit" value="Submit" class="button">
+                </div>
             </form>
         </div>
     </body>

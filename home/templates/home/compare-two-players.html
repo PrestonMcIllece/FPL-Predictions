@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Compare Two Players</title>
+        <title>Compare Two Players | FPLPredictions</title>
         <link rel="stylesheet" type="text/css" href="{% static 'fpl-predictions/index.css' %}">
         <link href="https://fonts.googleapis.com/css?family=Montserrat:200&display=swap" rel="stylesheet">
     </head>
@@ -12,7 +12,10 @@
             <form action="/compare-players/" method="post">
                 {% csrf_token %}
                 {{ form }}
-                <input type="submit" value="Submit" class="button">
+                <br>
+                <div class="buttonDiv">
+                    <input type="submit" value="Submit" class="button">
+                </div>
             </form>
         </div>
     </body>
