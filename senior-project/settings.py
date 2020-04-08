@@ -32,7 +32,6 @@ ALLOWED_HOSTS = [
     ]
 
 STATICFILES_DIRS = [
-    "/Users/prestonmcillece/Documents/capstone/project/FPL-Predictions/home/static"
 ]
 
 # Application definition
