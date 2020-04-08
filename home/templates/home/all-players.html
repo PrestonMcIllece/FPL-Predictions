@@ -5,12 +5,18 @@
         <title>All Players | FPLPredictions</title>
         <link rel="stylesheet" type="text/css" href="{% static 'fpl-predictions/index.css' %}">
         <link href="https://fonts.googleapis.com/css?family=Montserrat:200&display=swap" rel="stylesheet">
+        <link rel="shortcut icon" href="{% static 'fpl-predictions/favicon.png' %}" type="image/x-icon">
     </head>
     <body>
         <div class="container">
             <div class="headerDiv">
                 <h2>Here are all of the FPL players!</h2>
-                <h5>You can quickly find your players using <span>Ctrl + F</span>.</h5>
+                <h6>You can quickly find your players using <span>Ctrl + F</span>.</h6>
+            </div>
+            <div class="buttonDiv">
+                <form action="/">
+                    <input type="submit" value="Return home" class="button">
+                </form>
             </div>
             <div class="listDiv">
                 <ul>
@@ -19,11 +25,6 @@
                     <li type="none"> {{entry}} </li>
                     {% endfor %}
                 </ul>
-            </div>
-            <div class="buttonDiv"> 
-                <form action="/">
-                    <input type="submit" value="Return home" class="button">
-                </form>
             </div>
         </div>
     </body>

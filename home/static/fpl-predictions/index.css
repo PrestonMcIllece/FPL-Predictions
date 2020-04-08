@@ -54,3 +54,23 @@ h2 {
     margin: 0;
     padding-bottom: 10px;
 }
+
+.subheaderDiv {
+    font-size: 14px;
+}
+
+a {
+    text-decoration: none;
+    text-transform: uppercase;
+    color: black;
+    font-family: 'Anton', sans-serif;
+}
+
+a:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+h6 {
+    font-size: 15px;
+}

@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'yg!gh21i!5$nm8bttt288q9)2@k5mdm4&0nubbq@2mq$io5563'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
     '.fplpredictions.com',
@@ -32,6 +32,7 @@ ALLOWED_HOSTS = [
     ]
 
 STATICFILES_DIRS = [
+    "/Users/prestonmcillece/Documents/capstone/project/FPL-Predictions/home/static"
 ]
 
 # Application definition
@@ -122,4 +123,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = '/home/PrestonMcIllece/FPL-Predictions/home/static'
+STATIC_ROOT = '/home/PrestonMcIllece/FPL-Predictions/home/static' #prod
+# STATIC_ROOT = '/Users/prestonmcillece/Documents/capstone/project/FPL-Predictions/home/static' #development
