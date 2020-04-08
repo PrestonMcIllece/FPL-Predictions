@@ -150,7 +150,6 @@ def list_players():
     players = []
     for player in json_object:
         players.append(player['first_name'] + " " + player['second_name'])
-    print(players)
     return players
 
 def parse_players(inputtedTeam):
