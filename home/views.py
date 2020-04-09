@@ -80,9 +80,11 @@ def home_page(request):
 
 def suggest_players(request):
     global team
-    suggestions = parse_players(team)
+    suggestionTuple = parse_players(team)
+    suggestions = suggestionTuple[0]
+    failedPlayerEntries = suggestionTuple[1]
     team = []
-    return render(request, 'home/team-results.html', {'suggestions': suggestions})
+    return render(request, 'home/team-results.html', {'suggestions': suggestions, 'failedPlayerEntries': failedPlayerEntries})
 
 
 
@@ -136,7 +138,6 @@ def calculate_comparisons(inputtedTeam):
     else:
         confidence_level = 'extremely confident'
 
-    comparison_list, inputtedTeam = [], []
     return "We are " + confidence_level + ' that ' + predicted_scores[max(player1_pred_score, player2_pred_score)] +  " will outpeform " + predicted_scores[min(player1_pred_score, player2_pred_score)] + " this week."
 
 def format_name(text):
@@ -175,7 +176,8 @@ def parse_players(inputtedTeam):
     second_worst_player_name = player_score_predictions[second_worst_player_score]
     third_worst_player_name = player_score_predictions[third_worst_player_score]
 
-    return "Your worst predicted players in order are " + worst_player_name + ", " + second_worst_player_name + ", and " + third_worst_player_name + ". You should consider benching these players or finding replacements on the transfer market."
+    returnTuple =  ("Your worst predicted players in order are " + worst_player_name + ", " + second_worst_player_name + ", and " + third_worst_player_name + ". You should consider benching these players or finding replacements on the transfer market.", 15 - len(playersList))
+    return returnTuple
 
 async def playerExample(inputtedPlayerTuple):
     session = aiohttp.ClientSession()
