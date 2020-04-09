@@ -42,7 +42,9 @@ def compare_players(request):
     return render(request, 'home/compare-two-players.html', {'form': form})
 
 def compare_players_suggestions(request):
+    global comparison_list
     comparison = calculate_comparisons(comparison_list)
+    comparison_list = []
     return render(request, 'home/compare-two-results.html', {'comparison': comparison})
 
 def get_name(request):
@@ -77,7 +79,9 @@ def home_page(request):
     return render(request, 'home/index.html')
 
 def suggest_players(request):
+    global team
     suggestions = parse_players(team)
+    team = []
     return render(request, 'home/team-results.html', {'suggestions': suggestions})
 
 
