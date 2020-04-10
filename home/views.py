@@ -28,14 +28,12 @@ def build_team(request):
     return render(request, 'home/best-team.html', {'bestPlayers': bestPlayers})
 
 def compare_players(request):
-    tempList = []
     if request.method  == 'POST':
         form = CompareTwoForm(request.POST)
         if form.is_valid():
-            tempList.append(form.cleaned_data['Player1'])
-            tempList.append(form.cleaned_data['Player2'])
-            for player in tempList:
-                comparison_list.append(player.split(" "))
+            comparison_list.append(form.cleaned_data['Player1'])
+            comparison_list.append(form.cleaned_data['Player2'])
+
             return HttpResponseRedirect('suggestions/')
     else:
         form = CompareTwoForm()
@@ -48,28 +46,25 @@ def compare_players_suggestions(request):
     return render(request, 'home/compare-two-results.html', {'comparison': comparison})
 
 def get_name(request):
-    tempTeam = []
     if request.method == 'POST':
         form = TeamForm(request.POST)
         if form.is_valid():
-            tempTeam.append(form.cleaned_data['Goalkeeper1'])
-            tempTeam.append(form.cleaned_data['Goalkeeper2'])
-            tempTeam.append(form.cleaned_data['Defender1'])
-            tempTeam.append(form.cleaned_data['Defender2'])
-            tempTeam.append(form.cleaned_data['Defender3'])
-            tempTeam.append(form.cleaned_data['Defender4'])
-            tempTeam.append(form.cleaned_data['Defender5'])
-            tempTeam.append(form.cleaned_data['Midfielder1'])
-            tempTeam.append(form.cleaned_data['Midfielder2'])
-            tempTeam.append(form.cleaned_data['Midfielder3'])
-            tempTeam.append(form.cleaned_data['Midfielder4'])
-            tempTeam.append(form.cleaned_data['Midfielder5'])
-            tempTeam.append(form.cleaned_data['Forward1'])
-            tempTeam.append(form.cleaned_data['Forward2'])
-            tempTeam.append(form.cleaned_data['Forward3'])
+            team.append(form.cleaned_data['Goalkeeper1'])
+            team.append(form.cleaned_data['Goalkeeper2'])
+            team.append(form.cleaned_data['Defender1'])
+            team.append(form.cleaned_data['Defender2'])
+            team.append(form.cleaned_data['Defender3'])
+            team.append(form.cleaned_data['Defender4'])
+            team.append(form.cleaned_data['Defender5'])
+            team.append(form.cleaned_data['Midfielder1'])
+            team.append(form.cleaned_data['Midfielder2'])
+            team.append(form.cleaned_data['Midfielder3'])
+            team.append(form.cleaned_data['Midfielder4'])
+            team.append(form.cleaned_data['Midfielder5'])
+            team.append(form.cleaned_data['Forward1'])
+            team.append(form.cleaned_data['Forward2'])
+            team.append(form.cleaned_data['Forward3'])
 
-            for player in tempTeam:
-                team.append(player.split(" "))
             return HttpResponseRedirect('team-suggestions/')
     else:
         form = TeamForm()
@@ -113,7 +108,8 @@ def calculate_comparisons(inputtedTeam):
     secondPlayer = False
     for inputtedPlayer in inputtedTeam:
         for person in json_object:
-            if format_name(person['first_name']) == format_name(inputtedPlayer[0]) and format_name(person['second_name']) == format_name(inputtedPlayer[1]):
+            json_name = person['first_name'] + " " + person['second_name']
+            if format_name(inputtedPlayer) == format_name(json_name):
                 playersList.append(person)
                 if secondPlayer:
                     playerIdTuple = (firstPlayerId, person['id'])
@@ -162,7 +158,8 @@ def parse_players(inputtedTeam):
     playersList = []
     for inputtedPlayer in inputtedTeam:
         for person in json_object:
-            if format_name(person['first_name']) == format_name(inputtedPlayer[0]) and format_name(person['second_name']) == format_name(inputtedPlayer[1]):
+            json_name = person['first_name'] + " " + person['second_name']
+            if format_name(inputtedPlayer) == format_name(json_name):
                 playersList.append(person)
     player_score_predictions = run_model(playersList)
     keys = list(player_score_predictions.keys())
