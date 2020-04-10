@@ -43,7 +43,11 @@ def compare_players_suggestions(request):
     global comparison_list
     comparison = calculate_comparisons(comparison_list)
     comparison_list = []
-    return render(request, 'home/compare-two-results.html', {'comparison': comparison})
+    if comparison == '-1':
+        statement = 'One or both players were entered incorrectly. Please try again.'
+        return render(request, 'home/not-enough-players.html', {'statement': statement})
+    else:
+        return render(request, 'home/compare-two-results.html', {'comparison': comparison})
 
 def get_name(request):
     if request.method == 'POST':
@@ -76,10 +80,14 @@ def home_page(request):
 def suggest_players(request):
     global team
     suggestionTuple = parse_players(team)
-    suggestions = suggestionTuple[0]
-    failedPlayerEntries = suggestionTuple[1]
     team = []
-    return render(request, 'home/team-results.html', {'suggestions': suggestions, 'failedPlayerEntries': failedPlayerEntries})
+    if suggestionTuple == '-1':
+        statement = "You failed to enter at least three player names correctly. Please try again."
+        return render(request, 'home/not-enough-players.html', {'statement': statement})
+    else:
+        suggestions = suggestionTuple[0]
+        failedPlayerEntries = suggestionTuple[1]
+        return render(request, 'home/team-results.html', {'suggestions': suggestions, 'failedPlayerEntries': failedPlayerEntries})
 
 
 
@@ -117,24 +125,27 @@ def calculate_comparisons(inputtedTeam):
                     secondPlayer = True
                     firstPlayerId = person['id']
     predicted_scores = run_model(playersList)
-    player1_pred_score, player2_pred_score = list(predicted_scores.keys())[0], list(predicted_scores.keys())[1]
-    adj_p1_pred_score, adj_p2_pred_score = player1_pred_score / 38, player2_pred_score / 38
-
-    playerFormTuple = asyncio.run(playerExample(playerIdTuple))
-
-    if playerFormTuple[0] > 3.0:
-        adj_p1_pred_score = adj_p1_pred_score * 2
-    elif playerFormTuple[0] == 0.0:
-        adj_p1_pred_score = adj_p1_pred_score * 0.5
-
-    if abs(adj_p1_pred_score - adj_p2_pred_score) < 1.5:
-        confidence_level = 'only slightly confident'
-    elif abs(adj_p1_pred_score - adj_p2_pred_score) < 3.0:
-        confidence_level = 'moderately confident'
+    if (len(list(predicted_scores)) != 2):
+        return '-1'
     else:
-        confidence_level = 'extremely confident'
+        player1_pred_score, player2_pred_score = list(predicted_scores.keys())[0], list(predicted_scores.keys())[1]
+        adj_p1_pred_score, adj_p2_pred_score = player1_pred_score / 38, player2_pred_score / 38
 
-    return "We are " + confidence_level + ' that ' + predicted_scores[max(player1_pred_score, player2_pred_score)] +  " will outpeform " + predicted_scores[min(player1_pred_score, player2_pred_score)] + " this week."
+        playerFormTuple = asyncio.run(playerExample(playerIdTuple))
+
+        if playerFormTuple[0] > 3.0:
+            adj_p1_pred_score = adj_p1_pred_score * 2
+        elif playerFormTuple[0] == 0.0:
+            adj_p1_pred_score = adj_p1_pred_score * 0.5
+
+        if abs(adj_p1_pred_score - adj_p2_pred_score) < 1.5:
+            confidence_level = 'only slightly confident'
+        elif abs(adj_p1_pred_score - adj_p2_pred_score) < 3.0:
+            confidence_level = 'moderately confident'
+        else:
+            confidence_level = 'extremely confident'
+
+        return "We are " + confidence_level + ' that ' + predicted_scores[max(player1_pred_score, player2_pred_score)] +  " will outpeform " + predicted_scores[min(player1_pred_score, player2_pred_score)] + " this week."
 
 def format_name(text):
     try:
@@ -165,16 +176,19 @@ def parse_players(inputtedTeam):
     keys = list(player_score_predictions.keys())
     keys.sort()
 
-    worst_player_score = keys[0]
-    second_worst_player_score = keys[1]
-    third_worst_player_score = keys[2]
+    if (len(keys) < 3):
+        return '-1'
+    else:
+        worst_player_score = keys[0]
+        second_worst_player_score = keys[1]
+        third_worst_player_score = keys[2]
 
-    worst_player_name = player_score_predictions[worst_player_score]
-    second_worst_player_name = player_score_predictions[second_worst_player_score]
-    third_worst_player_name = player_score_predictions[third_worst_player_score]
+        worst_player_name = player_score_predictions[worst_player_score]
+        second_worst_player_name = player_score_predictions[second_worst_player_score]
+        third_worst_player_name = player_score_predictions[third_worst_player_score]
 
-    returnTuple =  ("Your worst predicted players in order are " + worst_player_name + ", " + second_worst_player_name + ", and " + third_worst_player_name + ". You should consider benching these players or finding replacements on the transfer market.", 15 - len(playersList))
-    return returnTuple
+        returnTuple =  ("Your worst predicted players in order are " + worst_player_name + ", " + second_worst_player_name + ", and " + third_worst_player_name + ". You should consider benching these players or finding replacements on the transfer market.", 15 - len(playersList))
+        return returnTuple
 
 async def playerExample(inputtedPlayerTuple):
     session = aiohttp.ClientSession()

@@ -78,3 +78,7 @@ h6 {
 #incorrectPlayersStatement {
     padding-top: 5px;
 }
+
+#errorDiv {
+    font-size: 32px;
+}
