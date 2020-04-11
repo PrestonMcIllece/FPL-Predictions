@@ -31,8 +31,8 @@ def compare_players(request):
     if request.method  == 'POST':
         form = CompareTwoForm(request.POST)
         if form.is_valid():
-            comparison_list.append(form.cleaned_data['Player1'])
-            comparison_list.append(form.cleaned_data['Player2'])
+            comparison_list.append(form.cleaned_data['player1'])
+            comparison_list.append(form.cleaned_data['player2'])
 
             return HttpResponseRedirect('suggestions/')
     else:
@@ -157,6 +157,15 @@ def format_name(text):
     final_text = text.lower()
     return final_text
 
+async def get_form(inputted_player_tuple):
+    session = aiohttp.ClientSession()
+    fpl = FPL(session)
+    player_one = await fpl.get_player(inputted_player_tuple[0])
+    player_two = await fpl.get_player(inputted_player_tuple[1])
+    player_form_tuple = (float(player_one.__dict__['form']), float(player_two.__dict__['form']))
+    await session.close()
+    return player_form_tuple
+
 def list_players():
     json_object = connect(APIS[0])
     players = []
@@ -189,12 +198,3 @@ def parse_players(inputted_team):
 
         return_tuple =  ("Your worst predicted players in order are " + worst_player_name + ", " + second_worst_player_name + ", and " + third_worst_player_name + ". You should consider benching these players or finding replacements on the transfer market.", 15 - len(players_list))
         return return_tuple
-
-async def get_form(inputted_player_tuple):
-    session = aiohttp.ClientSession()
-    fpl = FPL(session)
-    player_one = await fpl.get_player(inputted_player_tuple[0])
-    player_two = await fpl.get_player(inputted_player_tuple[1])
-    player_form_tuple = (float(player_one.__dict__['form']), float(player_two.__dict__['form']))
-    await session.close()
-    return player_form_tuple
