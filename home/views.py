@@ -131,7 +131,7 @@ def calculate_comparisons(inputted_team):
         player1_pred_score, player2_pred_score = list(predicted_scores.keys())[0], list(predicted_scores.keys())[1]
         adj_p1_pred_score, adj_p2_pred_score = player1_pred_score / 38, player2_pred_score / 38
 
-        player_form_tuple = asyncio.run(getForm(player_id_tuple))
+        player_form_tuple = asyncio.run(get_form(player_id_tuple))
 
         if player_form_tuple[0] > 3.0:
             adj_p1_pred_score = adj_p1_pred_score * 2
@@ -190,7 +190,7 @@ def parse_players(inputted_team):
         return_tuple =  ("Your worst predicted players in order are " + worst_player_name + ", " + second_worst_player_name + ", and " + third_worst_player_name + ". You should consider benching these players or finding replacements on the transfer market.", 15 - len(players_list))
         return return_tuple
 
-async def getForm(inputted_player_tuple):
+async def get_form(inputted_player_tuple):
     session = aiohttp.ClientSession()
     fpl = FPL(session)
     player_one = await fpl.get_player(inputted_player_tuple[0])
