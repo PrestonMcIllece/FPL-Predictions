@@ -24,8 +24,8 @@ def all_players(request):
     return render(request, 'home/all-players.html', {'players': players})
 
 def build_team(request):
-    bestPlayers = calculate_best_players()
-    return render(request, 'home/best-team.html', {'bestPlayers': bestPlayers})
+    best_players = calculate_best_players()
+    return render(request, 'home/best-team.html', {'best_players': best_players})
 
 def compare_players(request):
     if request.method  == 'POST':
@@ -53,21 +53,21 @@ def get_name(request):
     if request.method == 'POST':
         form = TeamForm(request.POST)
         if form.is_valid():
-            team.append(form.cleaned_data['Goalkeeper1'])
-            team.append(form.cleaned_data['Goalkeeper2'])
-            team.append(form.cleaned_data['Defender1'])
-            team.append(form.cleaned_data['Defender2'])
-            team.append(form.cleaned_data['Defender3'])
-            team.append(form.cleaned_data['Defender4'])
-            team.append(form.cleaned_data['Defender5'])
-            team.append(form.cleaned_data['Midfielder1'])
-            team.append(form.cleaned_data['Midfielder2'])
-            team.append(form.cleaned_data['Midfielder3'])
-            team.append(form.cleaned_data['Midfielder4'])
-            team.append(form.cleaned_data['Midfielder5'])
-            team.append(form.cleaned_data['Forward1'])
-            team.append(form.cleaned_data['Forward2'])
-            team.append(form.cleaned_data['Forward3'])
+            team.append(form.cleaned_data['goalkeeper1'])
+            team.append(form.cleaned_data['goalkeeper2'])
+            team.append(form.cleaned_data['defender1'])
+            team.append(form.cleaned_data['defender2'])
+            team.append(form.cleaned_data['defender3'])
+            team.append(form.cleaned_data['defender4'])
+            team.append(form.cleaned_data['defender5'])
+            team.append(form.cleaned_data['midfielder1'])
+            team.append(form.cleaned_data['midfielder2'])
+            team.append(form.cleaned_data['midfielder3'])
+            team.append(form.cleaned_data['midfielder4'])
+            team.append(form.cleaned_data['midfielder5'])
+            team.append(form.cleaned_data['forward1'])
+            team.append(form.cleaned_data['forward2'])
+            team.append(form.cleaned_data['forward3'])
 
             return HttpResponseRedirect('team-suggestions/')
     else:
@@ -79,15 +79,15 @@ def home_page(request):
 
 def suggest_players(request):
     global team
-    suggestionTuple = parse_players(team)
+    suggestion_tuple = parse_players(team)
     team = []
-    if suggestionTuple == '-1':
+    if suggestion_tuple == '-1':
         statement = "You failed to enter at least three player names correctly. Please try again."
         return render(request, 'home/not-enough-players.html', {'statement': statement})
     else:
-        suggestions = suggestionTuple[0]
-        failedPlayerEntries = suggestionTuple[1]
-        return render(request, 'home/team-results.html', {'suggestions': suggestions, 'failedPlayerEntries': failedPlayerEntries})
+        suggestions = suggestion_tuple[0]
+        failed_player_entries = suggestion_tuple[1]
+        return render(request, 'home/team-results.html', {'suggestions': suggestions, 'failed_player_entries': failed_player_entries})
 
 
 
@@ -109,33 +109,33 @@ def calculate_best_players():
 
     return "The 15 best possible players are: " + player0 + ", " + player1 + ", " + player2 + ", " + player3 + ", " + player4 + ", " + player5 + ", " + player6 + ", " + player7 + ", " + player8 + ", " + player9 + ", " + player10 + ", " + player11 + ", " + player12 + ", " + player13 + ", and " + player14 + ". Good luck trying to fit them all into your team!"
     
-def calculate_comparisons(inputtedTeam):
-    playersList= []
+def calculate_comparisons(inputted_team):
+    players_list= []
     json_object = connect(APIS[0])
     confidence_level = ''
     secondPlayer = False
-    for inputtedPlayer in inputtedTeam:
+    for inputted_player in inputted_team:
         for person in json_object:
             json_name = person['first_name'] + " " + person['second_name']
-            if format_name(inputtedPlayer) == format_name(json_name):
-                playersList.append(person)
+            if format_name(inputted_player) == format_name(json_name):
+                players_list.append(person)
                 if secondPlayer:
-                    playerIdTuple = (firstPlayerId, person['id'])
+                    player_id_tuple = (first_player_id, person['id'])
                 else:
                     secondPlayer = True
-                    firstPlayerId = person['id']
-    predicted_scores = run_model(playersList)
+                    first_player_id = person['id']
+    predicted_scores = run_model(players_list)
     if (len(list(predicted_scores)) != 2):
         return '-1'
     else:
         player1_pred_score, player2_pred_score = list(predicted_scores.keys())[0], list(predicted_scores.keys())[1]
         adj_p1_pred_score, adj_p2_pred_score = player1_pred_score / 38, player2_pred_score / 38
 
-        playerFormTuple = asyncio.run(playerExample(playerIdTuple))
+        player_form_tuple = asyncio.run(getForm(player_id_tuple))
 
-        if playerFormTuple[0] > 3.0:
+        if player_form_tuple[0] > 3.0:
             adj_p1_pred_score = adj_p1_pred_score * 2
-        elif playerFormTuple[0] == 0.0:
+        elif player_form_tuple[0] == 0.0:
             adj_p1_pred_score = adj_p1_pred_score * 0.5
 
         if abs(adj_p1_pred_score - adj_p2_pred_score) < 1.5:
@@ -150,12 +150,12 @@ def calculate_comparisons(inputtedTeam):
 def format_name(text):
     try:
         text = unicode(text, 'utf-8')
-    except NameError: # unicode is a default on python 3 
+    except NameError:
         pass
 
     text = str(unicodedata.normalize('NFD', text).encode('ascii', 'ignore').decode("utf-8"))
-    finalText = text.lower()
-    return finalText
+    final_text = text.lower()
+    return final_text
 
 def list_players():
     json_object = connect(APIS[0])
@@ -164,15 +164,15 @@ def list_players():
         players.append(player['first_name'] + " " + player['second_name'])
     return players
 
-def parse_players(inputtedTeam):
+def parse_players(inputted_team):
     json_object = connect(APIS[0])
-    playersList = []
-    for inputtedPlayer in inputtedTeam:
+    players_list = []
+    for inputted_player in inputted_team:
         for person in json_object:
             json_name = person['first_name'] + " " + person['second_name']
-            if format_name(inputtedPlayer) == format_name(json_name):
-                playersList.append(person)
-    player_score_predictions = run_model(playersList)
+            if format_name(inputted_player) == format_name(json_name):
+                players_list.append(person)
+    player_score_predictions = run_model(players_list)
     keys = list(player_score_predictions.keys())
     keys.sort()
 
@@ -187,14 +187,14 @@ def parse_players(inputtedTeam):
         second_worst_player_name = player_score_predictions[second_worst_player_score]
         third_worst_player_name = player_score_predictions[third_worst_player_score]
 
-        returnTuple =  ("Your worst predicted players in order are " + worst_player_name + ", " + second_worst_player_name + ", and " + third_worst_player_name + ". You should consider benching these players or finding replacements on the transfer market.", 15 - len(playersList))
-        return returnTuple
+        return_tuple =  ("Your worst predicted players in order are " + worst_player_name + ", " + second_worst_player_name + ", and " + third_worst_player_name + ". You should consider benching these players or finding replacements on the transfer market.", 15 - len(players_list))
+        return return_tuple
 
-async def playerExample(inputtedPlayerTuple):
+async def getForm(inputted_player_tuple):
     session = aiohttp.ClientSession()
     fpl = FPL(session)
-    playerOne = await fpl.get_player(inputtedPlayerTuple[0])
-    playerTwo = await fpl.get_player(inputtedPlayerTuple[1])
-    playerFormTuple = (float(playerOne.__dict__['form']), float(playerTwo.__dict__['form']))
+    player_one = await fpl.get_player(inputted_player_tuple[0])
+    player_two = await fpl.get_player(inputted_player_tuple[1])
+    player_form_tuple = (float(player_one.__dict__['form']), float(player_two.__dict__['form']))
     await session.close()
-    return playerFormTuple
+    return player_form_tuple
