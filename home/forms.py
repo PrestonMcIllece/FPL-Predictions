@@ -1,10 +1,16 @@
+'''
+Contains the forms to be displayed on the front end.
+'''
+
 from django import forms
 from django.utils.safestring import mark_safe
 
+'''Form for the Comparison page'''
 class CompareTwoForm(forms.Form):
     player1 = forms.CharField(label='Player 1', max_length=100)
     player2 = forms.CharField(label='Player 2', max_length=100)
 
+'''Form for the Input Team page'''
 class TeamForm(forms.Form):
     goalkeeper1 = forms.CharField(label='Goalkeeper 1', max_length=100)
     goalkeeper2 = forms.CharField(label='Goalkeeper 2', max_length=100)

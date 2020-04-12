@@ -1,28 +1,32 @@
+'''
+Contains the majority of the backend work for the application. Takes the input from the user, processes the information,
+and sends the necessary information to the html files to then render to the user.
+'''
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from .forms import TeamForm, CompareTwoForm
 from .lasso import run_model
 from .connect_to_api import connect
 from fpl import FPL
+from django.http import HttpResponse
 import asyncio
 import aiohttp
 import unicodedata
-
 import requests
 import json
 
-# Create your views here.
-from django.http import HttpResponse
-
+#globals
 team = []
 comparison_list = []
 APIS = ["https://fantasy.premierleague.com/api/bootstrap-static/"]
 
+'''calls helper function list_players() and sends the list to all-players.html to be rendered to the user'''
 def all_players(request):
     players = list_players()
     players.sort()
     return render(request, 'home/all-players.html', {'players': players})
 
+'''calls helper function calculate_best_players(), parses the player names, and sends a string to be displayed on best-team.html'''
 def build_team(request):
     best_players_tuple = calculate_best_players()
     best_players_list = best_players_tuple[0]
@@ -40,6 +44,7 @@ def build_team(request):
 
     return render(request, 'home/best-team.html', {'best_players': best_players})
 
+'''Takes the user's form entries and sends the page to the suggestions page where they will see their results'''
 def compare_players(request):
     if request.method  == 'POST':
         form = CompareTwoForm(request.POST)
@@ -52,6 +57,10 @@ def compare_players(request):
         form = CompareTwoForm()
     return render(request, 'home/compare-two-players.html', {'form': form})
 
+'''
+Calls helper function calculate_comparisons() and either tells the front end that the user made an error
+entering player names or provides them with a suggestion of which player is predicted to have a better week.
+'''
 def compare_players_suggestions(request):
     global comparison_list
     comparison = calculate_comparisons(comparison_list)
@@ -62,6 +71,7 @@ def compare_players_suggestions(request):
     else:
         return render(request, 'home/compare-two-results.html', {'comparison': comparison})
 
+'''Takes the user's form entries and sends the page to the team-suggestions page where they will see their results'''
 def get_name(request):
     if request.method == 'POST':
         form = TeamForm(request.POST)
@@ -87,9 +97,14 @@ def get_name(request):
         form = TeamForm()
     return render(request, 'home/input-team.html', {'form': form})
 
+'''Returns the website's home page'''
 def home_page(request):
     return render(request, 'home/index.html')
 
+'''
+Calls helper function parse_players() and either returns that the user didn't enter at least 3 names properly
+or outputs the suggestion for how to improve their team.
+'''
 def suggest_players(request):
     global team
     suggestion_tuple = parse_players(team)
@@ -105,6 +120,10 @@ def suggest_players(request):
 
 # Helper methods below this line #
 
+'''
+Connects to the API and calls run_model() to run every Premier League player through the model and then calculates
+and returns the 15 highest predicted players
+'''
 def calculate_best_players():
     json_object = connect(APIS[0])
     predicted_scores = run_model(json_object)
@@ -112,6 +131,11 @@ def calculate_best_players():
     keys.sort(reverse = True)
     return (keys[:15], predicted_scores)
     
+'''
+Provides the logic for the comparison page. Ensures both players were entered properly, calls run_model() to 
+get their predicted scores, get_form() to modify their predicted score based on week-to-week data and returns
+a suggestion for which player is predicted to perform better this week.
+'''
 def calculate_comparisons(inputted_team):
     players_list= []
     json_object = connect(APIS[0])
@@ -149,6 +173,10 @@ def calculate_comparisons(inputted_team):
 
         return 'We are ' + confidence_level((adj_p1_pred_score, adj_p2_pred_score)) + ' that ' + predicted_scores[max(player1_pred_score, player2_pred_score)] +  ' will outperform ' + predicted_scores[min(player1_pred_score, player2_pred_score)] + ' this week.'
 
+'''
+Compares two players' adjusted predicted scores and returns a confidence level based on the margin
+of difference.
+'''
 def confidence_level(adj_score_tuple):
     confidence = ''
     if abs(adj_score_tuple[0] - adj_score_tuple[1]) < 1.5:
@@ -159,6 +187,7 @@ def confidence_level(adj_score_tuple):
         confidence = 'extremely confident'
     return confidence
 
+'''Removes accents and lowercases names to allow users flexibility when entering player names.'''
 def format_name(text):
     try:
         text = unicode(text, 'utf-8')
@@ -169,6 +198,7 @@ def format_name(text):
     final_text = text.lower()
     return final_text
 
+'''Returns a tuple of current player forms from the python fpl package based on the inputted player tuple.'''
 async def get_form(inputted_player_tuple):
     session = aiohttp.ClientSession()
     fpl = FPL(session)
@@ -178,6 +208,10 @@ async def get_form(inputted_player_tuple):
     await session.close()
     return player_form_tuple
 
+'''
+Connects to the API and adds every Premier League players' name to a list. Then return that list to be displayed
+on the front end.
+'''
 def list_players():
     json_object = connect(APIS[0])
     players = []
@@ -185,6 +219,11 @@ def list_players():
         players.append(player['first_name'] + " " + player['second_name'])
     return players
 
+'''
+Contains the logic for the Input Team page. Takes user's team information, runs the players through the model
+and returns suggestions about their team as well as the number of players they misspelled. Also handles error
+checking for if the user fails to enter 3 player names properly.
+'''
 def parse_players(inputted_team):
     json_object = connect(APIS[0])
     players_list = []

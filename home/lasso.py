@@ -1,4 +1,13 @@
-                        
+'''
+This file contains the logic pertaining to the Lasso Regression statistical model.
+'''
+
+'''
+Implementation of the specific Lasso model that I calculated in R for my Data Science minor capstone. I chose
+to translate the model rather than rebuilding it in Python for clarity and consistency between my minor and major
+capstones. Takes a list of dictionary objects representing players, calculates their predicted score based on their
+attributes, and returns a dictionary of players' predicted scores as the key and their name as the value.
+'''
 def run_model(team):
     predicted_scores = {}
     for player in team:

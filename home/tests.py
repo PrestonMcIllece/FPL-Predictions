@@ -1,3 +1,6 @@
+'''
+This file contains the unit tests for all helper methods.
+'''
 from unittest import TestCase
 from . import views
 from . import connect_to_api

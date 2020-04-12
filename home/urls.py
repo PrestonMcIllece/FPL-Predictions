@@ -1,3 +1,8 @@
+'''
+Contains the applications' URLs and links them to the correct views. This ensures that the necessary logic is
+run for the given URL.
+'''
+
 from django.urls import path
 from . import views
 
