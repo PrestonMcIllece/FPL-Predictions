@@ -14,10 +14,9 @@ import aiohttp
 import unicodedata
 import requests
 import json
+from urllib.parse import parse_qs
 
 #globals
-team = []
-comparison_list = []
 APIS = ["https://fantasy.premierleague.com/api/bootstrap-static/"]
 
 '''calls helper function list_players() and sends the list to all-players.html to be rendered to the user'''
@@ -49,10 +48,10 @@ def compare_players(request):
     if request.method  == 'POST':
         form = CompareTwoForm(request.POST)
         if form.is_valid():
-            comparison_list.append(form.cleaned_data['player1'])
-            comparison_list.append(form.cleaned_data['player2'])
-
-            return HttpResponseRedirect('suggestions/')
+            players = ''
+            for obj in form.cleaned_data:
+                players += form.cleaned_data[obj] + ","
+            return HttpResponseRedirect('suggestions/?players=' + players)
     else:
         form = CompareTwoForm()
     return render(request, 'home/compare-two-players.html', {'form': form})
@@ -62,9 +61,8 @@ Calls helper function calculate_comparisons() and either tells the front end tha
 entering player names or provides them with a suggestion of which player is predicted to have a better week.
 '''
 def compare_players_suggestions(request):
-    global comparison_list
+    comparison_list = parse_qs(request.META['QUERY_STRING'])['players'][0].split(',')
     comparison = calculate_comparisons(comparison_list)
-    comparison_list = []
     if comparison == '-1':
         statement = 'One or both players were entered incorrectly. Please try again.'
         return render(request, 'home/not-enough-players.html', {'statement': statement})
@@ -76,23 +74,10 @@ def get_name(request):
     if request.method == 'POST':
         form = TeamForm(request.POST)
         if form.is_valid():
-            team.append(form.cleaned_data['goalkeeper1'])
-            team.append(form.cleaned_data['goalkeeper2'])
-            team.append(form.cleaned_data['defender1'])
-            team.append(form.cleaned_data['defender2'])
-            team.append(form.cleaned_data['defender3'])
-            team.append(form.cleaned_data['defender4'])
-            team.append(form.cleaned_data['defender5'])
-            team.append(form.cleaned_data['midfielder1'])
-            team.append(form.cleaned_data['midfielder2'])
-            team.append(form.cleaned_data['midfielder3'])
-            team.append(form.cleaned_data['midfielder4'])
-            team.append(form.cleaned_data['midfielder5'])
-            team.append(form.cleaned_data['forward1'])
-            team.append(form.cleaned_data['forward2'])
-            team.append(form.cleaned_data['forward3'])
-
-            return HttpResponseRedirect('team-suggestions/')
+            players = ''
+            for obj in form.cleaned_data:
+                players += form.cleaned_data[obj] + ","
+            return HttpResponseRedirect('team-suggestions/?players=' + players)
     else:
         form = TeamForm()
     return render(request, 'home/input-team.html', {'form': form})
@@ -106,9 +91,8 @@ Calls helper function parse_players() and either returns that the user didn't en
 or outputs the suggestion for how to improve their team.
 '''
 def suggest_players(request):
-    global team
+    team = parse_qs(request.META['QUERY_STRING'])['players'][0].split(',')
     suggestion_tuple = parse_players(team)
-    team = []
     if suggestion_tuple == '-1':
         statement = "You failed to enter at least three player names correctly. Please try again."
         return render(request, 'home/not-enough-players.html', {'statement': statement})
@@ -137,6 +121,7 @@ get their predicted scores, get_form() to modify their predicted score based on 
 a suggestion for which player is predicted to perform better this week.
 '''
 def calculate_comparisons(inputted_team):
+    inputted_team = [i for i in inputted_team if i]
     players_list= []
     json_object = connect(APIS[0])
     secondPlayer = False
@@ -225,7 +210,7 @@ and returns suggestions about their team as well as the number of players they m
 checking for if the user fails to enter 3 player names properly.
 '''
 def parse_players(inputted_team):
-    print(">>>>>", inputted_team)
+    inputted_team = [i for i in inputted_team if i]
     json_object = connect(APIS[0])
     players_list = []
     for inputted_player in inputted_team:
