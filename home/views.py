@@ -225,6 +225,7 @@ and returns suggestions about their team as well as the number of players they m
 checking for if the user fails to enter 3 player names properly.
 '''
 def parse_players(inputted_team):
+    print(">>>>>", inputted_team)
     json_object = connect(APIS[0])
     players_list = []
     for inputted_player in inputted_team:
