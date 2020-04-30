@@ -14,7 +14,7 @@ Create a new virtual environment.
 
 Switch into your virtual environment.
 
-`$ source name_of_virtualenv`
+`$ source name_of_virtualenv/bin/activate`
 
 From here, you can install all dependencies from the `requirements.txt` file.
 
