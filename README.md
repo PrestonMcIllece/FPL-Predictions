@@ -6,15 +6,19 @@
 
 [Make sure you have Python 3.7 installed.](https://www.python.org/downloads/)
 
-Install the Python fpl package.
+Create a new virtual environment.
 
-`$ pip3 install fpl`
+`$ pip install virtualenv`
 
-If this fails, try `$ pip install fpl` instead.
+`$ virtualenv name_of_virtualenv`
 
-Next, install Django.
+Switch into your virtual environment.
 
-`$ python3 -m pip install Django` Again, if this fails try `$ python -m pip install Django` instead.
+`$ source name_of_virtualenv`
+
+From here, you can install all dependencies from the `requirements.txt` file.
+
+`$ pip install -r requirements.txt`
 
 Finally, `cd` into /FPL-Predictions and run:
 
