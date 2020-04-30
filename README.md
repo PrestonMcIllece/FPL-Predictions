@@ -4,7 +4,7 @@
 
 `$ git clone https://github.com/PrestonMcIllece/FPL-Predictions`
 
-[Make sure you have Python 3.7 installed.] (https://www.python.org/downloads/)
+[Make sure you have Python 3.7 installed.](https://www.python.org/downloads/)
 
 Install the Python fpl package.
 
