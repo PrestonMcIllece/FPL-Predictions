@@ -12,8 +12,12 @@ Install the Python fpl package.
 
 If this fails, try `$ pip install fpl` instead.
 
-Lastly, install Django.
+Next, install Django.
 
 `$ python3 -m pip install Django` Again, if this fails try `$ python -m pip install Django` instead.
 
-
+Finally, `cd` into /FPL-Predictions and run:
+ `
+`$ python3 manage.py runserver <port number>` 
+  
+You can now visit localhost:<port number> in the browser and see the application!
