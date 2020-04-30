@@ -18,6 +18,6 @@ Next, install Django.
 
 Finally, `cd` into /FPL-Predictions and run:
  `
-`$ python3 manage.py runserver <port number>` 
+`$ python3 manage.py runserver PORTNUMBER` where PORTNUMBER is the port you want to run it on.
   
-You can now visit localhost:<port number> in the browser and see the application!
+You can now visit localhost:PORTNUMBER in the browser and see the application!
